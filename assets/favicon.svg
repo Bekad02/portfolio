@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#071018"/>
+  <circle cx="32" cy="22" r="12" fill="#ff7b00" />
+  <text x="32" y="38" font-family="Poppins, sans-serif" font-size="14" text-anchor="middle" fill="#071018" font-weight="700">B</text>
+</svg>

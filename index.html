@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bereket Tesfaye — Graphic Designer</title>
+    <meta name="description" content="Portfolio of Bereket Tesfaye — graphic designer specializing in branding, posters, and digital illustration." />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+  <body>
+    <!-- page progress bar -->
+    <div id="progress" aria-hidden="true"></div>
+
+    <!-- preloader -->
+    <div id="preloader" class="preloader" aria-hidden="true">
+      <div class="spinner" aria-hidden="true"></div>
+    </div>
+    <!-- Decorative background banner (will prefer assets/bg1.webp or assets/bg1.jpg if present) -->
+    <div class="bg-banner" aria-hidden="true">
+      <picture>
+        <source srcset="assets/bg1.webp" type="image/webp">
+        <source srcset="assets/bg1.jpg" type="image/jpeg">
+        <img src="assets/bg.png" alt="Background banner" class="bg-img" />
+      </picture>
+      <!-- fallback SVG shape remains for when no image is provided -->
+      <svg class="bg-fallback" viewBox="0 0 1200 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g1" x1="0" x2="1">
+            <stop offset="0%" stop-color="#ff7b00" stop-opacity="1" />
+            <stop offset="100%" stop-color="#ffb069" stop-opacity="1" />
+          </linearGradient>
+        </defs>
+        <path d="M0 120 C200 40, 400 0, 600 20 C800 40, 1000 120, 1200 80 L1200 200 L0 200 Z" fill="url(#g1)" opacity="0.08"></path>
+      </svg>
+    </div>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="logo" href="#">Bereket<span class="dot">.</span></a>
+        <div class="socials" aria-hidden="false">
+          <a href="https://www.instagram.com/bereket_ye_tesfaye/" target="_blank" aria-label="Instagram" class="social">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M17.5 6.5L17.51 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </a>
+          <a href="#contact" aria-label="Contact" class="social"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 8l9 6 9-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 8v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+        <button class="nav-toggle" aria-controls="primary-nav" aria-expanded="false">☰</button>
+        <nav id="primary-nav" class="primary-nav">
+          <a href="#home">Home</a>
+          <a href="#work">Work</a>
+          <a href="#services">Services</a>
+          <a href="#testimonials">Testimonials</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section id="home" class="hero">
+        <div class="wrap hero-grid">
+          <div class="hero-text">
+            <h1>Hi, I'm Bereket — a graphic designer crafting bold brands & eye-catching visuals.</h1>
+            <p>I turn ideas into memorable identities. I design logos, posters, packaging, and digital art with a clean, modern touch and playful color.</p>
+            <div class="hero-cta">
+              <a class="btn" href="#work">See My Work</a>
+              <a class="btn ghost" href="#contact">Hire Me</a>
+            </div>
+          </div>
+          <div class="hero-visual" aria-hidden="true">
+            <svg class="blob" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+              <g transform="translate(300,300)">
+                <path d="M120,-152C155,-119,179,-79,188,-34C197,11,191,60,164,97C137,133,90,158,47,176C4,194,-31,205,-78,199C-126,194,-186,171,-206,124C-226,78,-206,10,-187,-45C-168,-100,-150,-138,-118,-170C-86,-203,-43,-230,2,-233C47,-235,93,-213,120,-152Z" fill="#FF7B00" opacity="0.9"></path>
+              </g>
+            </svg>
+            <div class="visual-card">
+              <img src="assets/profile.jpg" alt="Bereket Tesfaye profile photo" class="profile-img" loading="lazy"/>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="work" class="section">
+        <div class="wrap">
+          <h2 class="section-title">Selected Work</h2>
+          <p class="section-lead">A curated selection showcasing logos, posters and brand systems.</p>
+
+          <div class="gallery">
+            <article class="card project" data-full="https://via.placeholder.com/1200x800.png?text=Logo+Design" data-title="Logo Design — Brand X">
+              <img src="https://via.placeholder.com/600x420.png?text=Logo+Design" alt="Logo Design — Brand X"/>
+              <div class="card-meta"><h3>Logo Design</h3><p>Brand identity</p></div>
+            </article>
+
+            <article class="card project" data-full="https://via.placeholder.com/1200x800.png?text=Poster+Series" data-title="Poster Series — Music Fest">
+              <img src="https://via.placeholder.com/600x420.png?text=Poster+Design" alt="Poster Design"/>
+              <div class="card-meta"><h3>Poster Series</h3><p>Promotional posters</p></div>
+            </article>
+
+            <article class="card project" data-full="https://via.placeholder.com/1200x800.png?text=Brand+Identity" data-title="Brand Identity — Café">
+              <img src="https://via.placeholder.com/600x420.png?text=Brand+Identity" alt="Brand Identity"/>
+              <div class="card-meta"><h3>Brand Identity</h3><p>Café rebrand</p></div>
+            </article>
+
+            <article class="card project" data-full="https://via.placeholder.com/1200x800.png?text=Social+Campaign" data-title="Social Campaign">
+              <img src="https://via.placeholder.com/600x420.png?text=Social+Banner" alt="Social media banner"/>
+              <div class="card-meta"><h3>Social Campaign</h3><p>Digital banners</p></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="services" class="section alt">
+        <div class="wrap">
+          <h2 class="section-title">Services</h2>
+          <div class="services-grid">
+            <div class="service">
+              <h3>Branding</h3>
+              <p>Logo systems, brand guidelines, and visual strategy.</p>
+            </div>
+            <div class="service">
+              <h3>Print & Posters</h3>
+              <p>Eye-catching posters, brochures and packaging design.</p>
+            </div>
+            <div class="service">
+              <h3>Digital</h3>
+              <p>Social media creatives, banner ads and web graphics.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="testimonials" class="section">
+        <div class="wrap">
+          <h2 class="section-title">Testimonials</h2>
+          <div class="testimonials">
+            <blockquote>
+              <p>"Bereket understood our brand instantly and delivered work beyond expectations."</p>
+              <footer>— Amanuel, Café Owner</footer>
+            </blockquote>
+            <blockquote>
+              <p>"Fast, reliable and creative. Highly recommended for any branding work."</p>
+              <footer>— Selam, Event Organizer</footer>
+            </blockquote>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="section contact-section">
+        <div class="wrap">
+          <h2 class="section-title">Get in touch</h2>
+          <p class="section-lead">Available for freelance and studio work. Tell me about your project.</p>
+          <div class="contact-grid">
+            <form class="contact-form" action="mailto:bereketdesigns@example.com" method="post" enctype="text/plain">
+              <label><span>Name</span><input type="text" name="name" required></label>
+              <label><span>Email</span><input type="email" name="email" required></label>
+              <label><span>Message</span><textarea name="message" rows="5" required></textarea></label>
+              <button class="btn" type="submit">Send Message</button>
+            </form>
+            <aside class="contact-info">
+              <h3>Contact</h3>
+              <p>Email: <a href="mailto:berekett418@gmail.com">berekett418@gmail.com</a></p>
+              <p>Phone: +251 970 130 220</p>
+              <p>Instagram: <a href="https://www.instagram.com/bereket_ye_tesfaye/" target="_blank">@Beki_designs</a></p>
+            </aside>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>© 2025 Bereket Tesfaye — Crafted with care</p>
+      </div>
+    </footer>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox" aria-hidden="true">
+      <button class="lightbox-close" aria-label="Close">✕</button>
+      <img class="lightbox-img" alt="" src="" />
+      <div class="lightbox-caption"></div>
+    </div>
+
+    <script src="js/script.js"></script>
+  </body>
+</html>
