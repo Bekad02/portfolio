@@ -6,10 +6,51 @@ document.addEventListener('DOMContentLoaded',function(){
     const expanded = navToggle.getAttribute('aria-expanded') === 'true';
     navToggle.setAttribute('aria-expanded', String(!expanded));
     if(primaryNav){
-      primaryNav.style.display = expanded ? 'none' : 'flex';
-      primaryNav.style.flexDirection = 'column';
-      primaryNav.style.gap = '10px';
+      // toggle using a small classless inline style for mobile
+      if(!expanded){
+        primaryNav.style.display = 'flex';
+        primaryNav.style.flexDirection = 'column';
+        primaryNav.style.gap = '10px';
+      } else {
+        primaryNav.style.display = '';
+      }
     }
+  });
+
+  // theme toggle (persists in localStorage)
+  const themeToggle = document.querySelector('.theme-toggle');
+  const applyTheme = (t)=>{
+    if(t==='light') document.documentElement.setAttribute('data-theme','light');
+    else document.documentElement.removeAttribute('data-theme');
+    // update toggle icon and aria-pressed: show sun when light active, moon when dark active
+    if(themeToggle){
+      const isLightNow = document.documentElement.getAttribute('data-theme') === 'light';
+      themeToggle.textContent = isLightNow ? '☀️' : '🌙';
+      themeToggle.setAttribute('aria-pressed', String(isLightNow));
+      themeToggle.setAttribute('aria-label', isLightNow ? 'Switch to dark theme' : 'Switch to light theme');
+    }
+  };
+  const saved = localStorage.getItem('theme');
+  if(saved) {
+    applyTheme(saved);
+  } else {
+    // respect the user's system preference on first load
+    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    applyTheme(prefersLight ? 'light' : 'dark');
+    // Listen for system changes only if user did not pick a preference
+    if(window.matchMedia){
+      const mq = window.matchMedia('(prefers-color-scheme: light)');
+      mq.addEventListener && mq.addEventListener('change', (e)=>{
+        // only change when no saved preference
+        if(!localStorage.getItem('theme')) applyTheme(e.matches ? 'light' : 'dark');
+      });
+    }
+  }
+  themeToggle && themeToggle.addEventListener('click', ()=>{
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const next = isLight ? 'dark' : 'light';
+    applyTheme(next);
+    localStorage.setItem('theme', next);
   });
 
   // Smooth anchor scroll (native fallback)
@@ -79,19 +120,20 @@ document.addEventListener('DOMContentLoaded',function(){
     revealEls.forEach((el,i)=>{ el.style.transitionDelay = `${i*70}ms`; el.classList.add('is-visible'); });
   }
 
-  // Banner parallax (very subtle) using rAF
-  const banner = document.querySelector('.bg-banner');
-  if(banner){
-    let lastY = 0;
-    const onScroll = ()=>{
-      lastY = window.scrollY;
-      requestAnimationFrame(()=>{
-        // small translate to create depth
-        banner.style.transform = `translateY(${Math.min(lastY * 0.12, 80)}px)`;
-      });
-    };
-    window.addEventListener('scroll', onScroll, {passive:true});
-    onScroll();
+  // Banner parallax removed (static banner preferred)
+  // If you want parallax later re-enable a lightweight translate on scroll here.
+
+  // Preloader: fade out once content is ready
+  const preloader = document.getElementById('preloader');
+  if(preloader){
+    // give a minimal delay so users see the shimmer for very fast loads
+    setTimeout(()=>{
+      preloader.style.transition = 'opacity 420ms ease, visibility 420ms';
+      preloader.style.opacity = '0';
+      preloader.style.visibility = 'hidden';
+      // remove from flow after transition to avoid accidental focus capture
+      setTimeout(()=>{ preloader.remove(); }, 520);
+    }, 250);
   }
 
   // Navbar background: toggle .scrolled when user scrolls down
