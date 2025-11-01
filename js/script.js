@@ -51,6 +51,17 @@ document.addEventListener('DOMContentLoaded',function(){
     const next = isLight ? 'dark' : 'light';
     applyTheme(next);
     localStorage.setItem('theme', next);
+    // small spin animation to visually indicate toggle
+    try{
+      if(themeToggle){
+        themeToggle.classList.remove('spin');
+        // force reflow to restart animation
+        // eslint-disable-next-line no-unused-expressions
+        themeToggle.offsetWidth;
+        themeToggle.classList.add('spin');
+        themeToggle.addEventListener('animationend', ()=>{ themeToggle.classList.remove('spin'); }, {once:true});
+      }
+    }catch(e){ /* ignore animation errors */ }
   });
 
   // Smooth anchor scroll (native fallback)
@@ -102,23 +113,131 @@ document.addEventListener('DOMContentLoaded',function(){
   window.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLightbox(); });
 
   // Simple scroll reveal using IntersectionObserver
-  const revealEls = Array.from(document.querySelectorAll('.reveal, .card'));
+  // Ensure common targets have the .reveal class so they start hidden and animate in
+  ['.card', '.hero-text', '.service', '.testimonials blockquote', '.visual-card'].forEach(sel=>{
+    document.querySelectorAll(sel).forEach(el=>{ if(!el.classList.contains('reveal')) el.classList.add('reveal'); });
+  });
+  const revealEls = Array.from(document.querySelectorAll('.reveal'));
   if('IntersectionObserver' in window){
     const io = new IntersectionObserver((entries)=>{
       entries.forEach(entry=>{
         if(entry.isIntersecting){
-          const order = entry.target.dataset.order || 0;
-          entry.target.style.transitionDelay = `${order * 70}ms`;
+          const order = Number(entry.target.dataset.order) || 0;
+          const stagger = 120; // ms per item (kept in sync with CSS var --reveal-stagger)
+          // use animationDelay so the CSS animation can be staggered precisely
+          entry.target.style.animationDelay = `${order * stagger}ms`;
+          // alternate a slight horizontal offset so items visibly move from left/right
+          const dir = (order % 2 === 0) ? -12 : 12; // px
+          entry.target.style.setProperty('--reveal-x', `${dir}px`);
+          entry.target.style.setProperty('--reveal-y', `28px`);
+          entry.target.style.setProperty('--reveal-time', `900ms`);
           entry.target.classList.add('is-visible');
+          // After the entrance animation finishes, add a continuous bounce unless user prefers reduced motion
+          if(!supportsReducedMotion){
+            entry.target.addEventListener('animationend', function onEnd(e){
+              // ensure it's the reveal animation ending (not some other animation)
+              if(e.animationName && e.animationName.indexOf('fadeUp') !== -1){
+                entry.target.classList.add('bouncy');
+              } else {
+                // if animationName is empty or different, still add bouncy as a fallback
+                entry.target.classList.add('bouncy');
+              }
+            }, {once:true});
+          }
           io.unobserve(entry.target);
         }
       });
     },{threshold:0.12});
     revealEls.forEach((el,i)=>{ el.dataset.order = i; io.observe(el); });
   } else {
-    // fallback: just reveal
-    revealEls.forEach((el,i)=>{ el.style.transitionDelay = `${i*70}ms`; el.classList.add('is-visible'); });
+    // fallback: just reveal with staggered animationDelay
+    const fallbackStagger = 120;
+    revealEls.forEach((el,i)=>{
+      el.style.animationDelay = `${i * fallbackStagger}ms`;
+      el.classList.add('is-visible');
+      if(!supportsReducedMotion){
+        el.addEventListener('animationend', function onEnd(e){
+          el.classList.add('bouncy');
+        }, {once:true});
+      }
+    });
   }
+
+  // --- Button ripple micro-interaction ---
+  const supportsReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!supportsReducedMotion){
+    document.querySelectorAll('.btn').forEach(btn=>{
+      // ensure positioned container for absolute ripple
+      if(getComputedStyle(btn).position === 'static') btn.style.position = 'relative';
+      btn.addEventListener('click', (e)=>{
+        const rect = btn.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height) * 1.6;
+        const x = e.clientX - rect.left - size/2;
+        const y = e.clientY - rect.top - size/2;
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple';
+        ripple.style.width = ripple.style.height = `${size}px`;
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        ripple.style.position = 'absolute';
+        ripple.style.borderRadius = '50%';
+        ripple.style.transform = 'scale(0)';
+  ripple.style.opacity = '0.9';
+        ripple.style.pointerEvents = 'none';
+        ripple.style.transition = 'transform .6s ease, opacity .6s ease';
+        btn.appendChild(ripple);
+        requestAnimationFrame(()=>{ ripple.style.transform = 'scale(1)'; ripple.style.opacity = '0'; });
+        ripple.addEventListener('transitionend', ()=>{ ripple.remove(); }, {once:true});
+      });
+    });
+  }
+
+  // --- Hero parallax (lightweight) ---
+  (function(){
+    const hero = document.querySelector('.hero');
+    const bgImg = hero && hero.querySelector('.bg-img');
+    if(!hero || !bgImg) return;
+    if(supportsReducedMotion) return;
+    let ticking = false;
+    const maxOffset = 40; // px
+    function update(){
+      ticking = false;
+      const rect = hero.getBoundingClientRect();
+      // translate proportionally to hero's distance from viewport top
+      const translate = Math.round((rect.top) * -0.06);
+      const t = Math.max(-maxOffset, Math.min(maxOffset, translate));
+      bgImg.style.transform = `translate3d(0, ${t}px, 0)`;
+    }
+    window.addEventListener('scroll', ()=>{ if(!ticking){ requestAnimationFrame(update); ticking=true; } }, {passive:true});
+    window.addEventListener('resize', ()=>{ requestAnimationFrame(update); }, {passive:true});
+    update();
+  })();
+
+  // --- Lightbox improvements: focus trap & animated open/close ---
+  (function(){
+    if(!lightbox) return;
+    const focusableSelector = 'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])';
+    const getFocusable = ()=>Array.from(lightbox.querySelectorAll(focusableSelector)).filter(el=>!el.hasAttribute('disabled'));
+    const trap = (e)=>{
+      if(e.key !== 'Tab') return;
+      const focusable = getFocusable();
+      if(focusable.length === 0) { e.preventDefault(); return; }
+      const first = focusable[0]; const last = focusable[focusable.length-1];
+      if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+    };
+    const openHandler = ()=>{ const focusable = getFocusable(); (focusable[0] || lbClose).focus(); document.addEventListener('keydown', trap); };
+    const closeHandler = ()=>{ document.removeEventListener('keydown', trap); };
+    const obs = new MutationObserver(mutations=>{
+      mutations.forEach(m=>{
+        if(m.attributeName === 'class'){
+          const open = lightbox.classList.contains('open');
+          if(open) openHandler(); else closeHandler();
+        }
+      });
+    });
+    obs.observe(lightbox, {attributes:true});
+  })();
 
   // Banner parallax removed (static banner preferred)
   // If you want parallax later re-enable a lightweight translate on scroll here.

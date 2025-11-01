@@ -35,6 +35,11 @@
   --btn-fg: var(--fg);
   --btn-border: rgba(255,255,255,0.06);
   --transition-time: 320ms;
+  /* reveal animation timing */
+  --reveal-time: 900ms; /* overall duration for entrance */
+  --reveal-stagger: 120ms; /* per-item stagger */
+  /* ripple color for buttons (theme-aware) */
+  --ripple: rgba(255,255,255,0.18);
 }
 /* Light (day) theme overrides */
 [data-theme="light"]{
@@ -49,6 +54,7 @@
   --btn-bg: rgba(0,0,0,0.04);
   --btn-fg: var(--fg);
   --btn-border: rgba(0,0,0,0.06);
+  --ripple: rgba(7,16,24,0.08);
 }
 
 /* smooth theme transitions */
@@ -99,9 +105,70 @@ html,body{overflow-x:hidden}
 
 @keyframes shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
-/* reveal animation utility */
-.reveal{opacity:0;transform:translateY(14px) scale(.995);transition:opacity .68s ease, transform .68s cubic-bezier(.2,.9,.3,1)}
-.reveal.is-visible{opacity:1;transform:none}
+/* reveal animation utility
+   - uses CSS variables to allow JS to set per-element offset/duration/delay
+   - default horizontal offset (--reveal-x): 0px
+   - default vertical offset  (--reveal-y): 28px
+*/
+.reveal{
+  opacity:0;
+  transform:translate(var(--reveal-x, 0), var(--reveal-y, 28px)) scale(.995);
+  will-change:transform,opacity;
+  visibility:hidden;
+}
+.reveal.is-visible{
+  visibility:visible;
+  /* animation duration and timing controlled by --reveal-time */
+  animation:fadeUp var(--reveal-time, 900ms) cubic-bezier(.2,.9,.3,1) both;
+}
+
+/* fade-up keyframe for staggered entrance. Uses CSS variables for the start offsets */
+@keyframes fadeUp {
+  /*
+    Bounce-style entrance:
+    - start off slightly down and transparent
+    - quickly move past the final position (small upward overshoot)
+    - settle back into place with a subtle bounce
+  */
+  0%{
+    opacity:0;
+    transform:translate(var(--reveal-x, 0), var(--reveal-y, 28px)) scale(.996);
+  }
+  60%{
+    opacity:1;
+    /* overshoot upward a little to create bounce */
+    transform:translate(0, -8px) scale(1.004);
+  }
+  80%{
+    /* small rebound below final position */
+    transform:translate(0, 4px) scale(.998);
+  }
+  100%{
+    opacity:1;
+    transform:translate(0,0) scale(1);
+  }
+}
+
+/* continuous smooth bounce after reveal */
+.bouncy{
+  /* gentle looped vertical bounce; duration tuned for subtlety */
+  animation:softBounce 2200ms cubic-bezier(.22,.9,.45,1) infinite;
+  will-change:transform;
+}
+
+@keyframes softBounce{
+  0%{ transform:translate(0,0) scale(1); }
+  45%{ transform:translate(0,-6px) scale(1.002); }
+  70%{ transform:translate(0,3px) scale(.999); }
+  100%{ transform:translate(0,0) scale(1); }
+}
+
+/* pause bounce while hovering or when interacting */
+.bouncy:hover, .bouncy:focus{ animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce){
+  .bouncy{ animation: none !important; }
+}
 
 /* project card overlay + icon */
 .card{position:relative;transition:transform .28s cubic-bezier(.2,.9,.3,1),box-shadow .28s}
@@ -131,6 +198,30 @@ html,body{overflow-x:hidden}
 @keyframes pulse{0%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.03)}100%{transform:translateY(0) scale(1)}}
 
 .primary-nav a:focus{outline:2px dashed rgba(255,123,0,0.18);outline-offset:4px}
+
+/* Button micro-interactions */
+.btn{transition:transform .18s ease, box-shadow .18s ease, opacity .18s;overflow:hidden}
+.btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 12px 30px rgba(2,6,23,0.35)}
+.btn:active{transform:translateY(-1px) scale(.995)}
+.btn:focus{outline:3px solid rgba(255,123,0,0.18);outline-offset:4px}
+
+/* ripple effect element (added dynamically) */
+.ripple{position:absolute;border-radius:50%;transform:scale(0);pointer-events:none;background:var(--ripple);opacity:.9}
+
+/* Lightbox transitions */
+.lightbox{opacity:0;transform:scale(.98);transition:opacity .28s ease, transform .28s ease;display:none}
+.lightbox.open{display:flex;opacity:1;transform:scale(1)}
+.lightbox .lightbox-img{transition:transform .28s ease, opacity .28s ease}
+
+/* hero banner transform hint for JS parallax */
+.hero .bg-img{will-change:transform}
+
+/* Respect reduced motion: disable non-essential animation */
+@media (prefers-reduced-motion: reduce){
+  .blob, .btn.pulse, .hero .bg-img, .ripple{animation:none;transition:none}
+  .reveal{transition:none;transform:none;opacity:1}
+  .lightbox{transition:none}
+}
 
 .hero-text h1{font-size:clamp(1.5rem,2.25rem,2.75rem);line-height:1.05;color:#fff;margin-bottom:.8rem}
 .hero-text p{color:var(--muted);max-width:60ch;margin-bottom:1.25rem}
@@ -275,4 +366,30 @@ html,body{overflow-x:hidden}
   .wrap{padding:5rem .75rem}
   .contact-grid{grid-template-columns:1fr}
   .visual-card img{display:flex;width:50%;height:auto}
+}
+
+/* Theme toggle animation (sun ↔ moon) */
+.theme-toggle{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:40px;
+  height:36px;
+  font-size:18px;
+  line-height:1;
+  background:var(--btn-bg);
+  color:var(--btn-fg);
+  border:1px solid var(--btn-border);
+  border-radius:8px;
+  transition:transform .28s ease, background-color var(--transition-time);
+}
+.theme-toggle.spin{animation:themeSpin .48s cubic-bezier(.2,.9,.2,1)}
+@keyframes themeSpin{
+  0%{transform:rotate(0) scale(1)}
+  40%{transform:rotate(200deg) scale(1.08)}
+  100%{transform:rotate(360deg) scale(1)}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .theme-toggle, .theme-toggle.spin{animation:none;transition:none}
 }
